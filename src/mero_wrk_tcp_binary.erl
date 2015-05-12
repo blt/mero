@@ -109,6 +109,15 @@ transaction(Client, add, [Key, Value, ExpTime, TimeLimit]) ->
             {error, Reason}
     end;
 
+transaction(Client, config, [TimeLimit]) ->
+    case send_receive(Client, {?MEMCACHE_CONFIG, {}}, TimeLimit) of
+        {<<>>, ClusterConfig} ->
+            [_Vsn, Nodes, <<>>] = binary:split(ClusterConfig, <<"\n">>, [global]),
+            Nds = lists:map(fun(N) -> binary:split(N, <<"|">>, [global]) end, binary:split(Nodes, <<" ">>, [global])),
+            {Client, {ok, Nds}};
+        {error, Reason} ->
+            {error, Reason}
+    end;
 
 transaction(Client, flush_all, [TimeLimit]) ->
     case send_receive(Client, {?MEMCACHE_FLUSH_ALL, {}}, TimeLimit) of
@@ -184,6 +193,9 @@ pack({?MEMCACHE_FLUSH_ALL, {}}) ->
     %% Flush inmediately by default
     ExpirationTime = 16#00,
     pack(<<ExpirationTime:32>>, ?MEMCACHE_FLUSH_ALL, <<>>);
+
+pack({?MEMCACHE_CONFIG, {}}) ->
+    pack(<<>>, ?MEMCACHE_CONFIG, <<"cluster">>);
 
 pack({get, Key}) ->
     pack(<<>>, ?MEMCACHE_GETK, Key).

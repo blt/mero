@@ -35,7 +35,8 @@
          set/5,
          delete/3,
          add/5,
-         flush_all/2
+         flush_all/2,
+         config/2
         ]).
 
 -include_lib("mero/include/mero.hrl").
@@ -74,6 +75,10 @@ add(Name, Key, Value, ExpTime, Timeout) ->
     PoolName = mero_cluster:server(Name, Key),
     pool_execute(PoolName, add, [Key, Value, ExpTime, TimeLimit], TimeLimit).
 
+config(Name, Timeout) ->
+    TimeLimit = mero_conf:add_now(Timeout),
+    PoolName = mero_cluster:server(Name, Key),
+    pool_execute(PoolName, config, [TimeLimit]).
 
 flush_all(Name, Timeout) ->
     TimeLimit = mero_conf:add_now(Timeout),
@@ -128,4 +133,3 @@ pool_execute(PoolName, Op, Args, TimeLimit) when is_tuple(TimeLimit) ->
         {error, Reason} ->
             {error, Reason}
     end.
-

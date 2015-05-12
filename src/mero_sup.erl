@@ -48,11 +48,24 @@
 %% mero_cluster
 -spec start_link(ClusterConfig :: list({ClusterName :: atom(),
                                         Config :: list()})) ->
-    {ok, Pid :: pid()} | {error, Reason :: term()}.
+                        {ok, Pid :: pid()} | {error, Reason :: term()}.
 start_link(ClusterConfig) ->
+    %% NOTE: stash this for later use, if mero_sup is invoked directly
+    mero_conf:cluster_config(ClusterConfig),
     ok = mero_cluster:load_clusters(ClusterConfig),
     PoolDefs = mero_cluster:child_definitions(),
-    supervisor:start_link({local, ?MODULE}, ?MODULE, [PoolDefs]).
+    Children = case mero_conf:autodiscovery_enabled() of
+                   false ->
+                       [PoolDefs];
+                   true ->
+                       [
+                        {mero_autodiscovery_daemon,
+                         {mero_autodiscovery_daemon, start_link, []},
+                         permanent, 5000, worker, dynamic
+                        } | PoolDefs
+                       ]
+               end,
+    supervisor:start_link({local, ?MODULE}, ?MODULE, Children).
 
 %%%===================================================================
 %%% Supervisor callbacks
@@ -63,8 +76,10 @@ init([PoolDefs]) ->
                || PoolDef <- PoolDefs],
     {ok, {{one_for_one, 10, 10}, Childs}}.
 
-
-
 child(I, Type, {ClusterName, Host, Port, Name, WrkModule}) ->
     {Name, {I, start_link, [ClusterName, Host, Port, Name, WrkModule]}, permanent,
-      5000, Type, [I]}.
+     5000, Type, [I]}.
+
+%%%===================================================================
+%%% Internal Functions
+%%%===================================================================

@@ -31,7 +31,9 @@
 
 -author('Miriam Pena <miriam.pena@adroll.com>').
 
--export([cluster_config/0,
+-export([autodiscovery_enabled/0,
+         autodiscovery_enabled/1,
+         cluster_config/0,
          cluster_config/1,
          timeout_read/0,
          timeout_read/1,
@@ -65,6 +67,14 @@
 %%%=============================================================================
 %%% External functions
 %%%=============================================================================
+
+-spec autodiscovery_enabled() -> boolean().
+autodiscovery_enabled() ->
+    get_env(autodiscovery_enabled).
+
+-spec autodiscovery_enabled(AutoDiscoveryEnabled :: boolean()) -> ok.
+autodiscovery_enabled(AutoDiscoveryEnabled) ->
+    application:set_env(mero, autodiscovery_enabled, AutoDiscoveryEnabled).
 
 %% @doc: Returns the cluster configuration
 -spec cluster_config() -> list({Name :: atom(), Config :: list()}).

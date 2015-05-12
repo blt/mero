@@ -38,6 +38,7 @@
 -define(MEMCACHE_ADD, 16#02).
 -define(MEMCACHE_DELETE, 16#04).
 -define(MEMCACHE_FLUSH_ALL, 16#08).
+-define(MEMCACHE_CONFIG, 16#60).
 
 %%% If a connection attempt fails, or a connection is broken
 -define(RECONNECT_WAIT_TIME, 200).
