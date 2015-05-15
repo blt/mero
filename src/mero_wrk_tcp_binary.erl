@@ -43,10 +43,12 @@
 -record(client, {socket, pool, event_callback :: module()}).
 
 -define(SOCKET_OPTIONS, [binary,
-    {packet, raw},
-    {active, false},
-    {reuseaddr, true},
-    {nodelay, true}]).
+                         {packet, raw},
+                         {active, false},
+                         {reuseaddr, true},
+                         {nodelay, true},
+                         {keepalive, false}
+                        ]).
 
 %%%=============================================================================
 %%% External functions
