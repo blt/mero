@@ -47,6 +47,7 @@
                          {active, false},
                          {reuseaddr, true},
                          {nodelay, true},
+                         {linger, {true, 1}},
                          {keepalive, false}
                         ]).
 
@@ -65,6 +66,8 @@ connect(Host, Port, CallbackInfo) ->
             {error, Reason}
     end.
 
+close(Client) ->
+    gen_tcp:close(Client#client.socket).
 
 controlling_process(Client, Pid) ->
     case gen_tcp:controlling_process(Client#client.socket, Pid) of
@@ -127,10 +130,6 @@ transaction(Client, get, [Keys, Timeout]) ->
       {ok, Results} ->
           {Client, Results}
     end.
-
-
-close(Client) ->
-    gen_tcp:close(Client#client.socket).
 
 
 %%%=============================================================================

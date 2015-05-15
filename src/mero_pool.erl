@@ -348,10 +348,11 @@ checkin_closed_pid(#pool_st{busy = Busy, num_connected = Num} = State, Pid) ->
     end.
 
 
-down(#pool_st{busy = Busy, num_connected = Num} = State, Pid) ->
+down(#pool_st{busy = Busy, num_connected = Num, callback_info = CallbackInfo} = State, Pid) ->
     case dict:find(Pid, Busy) of
         {ok, {_, Conn}} ->
             catch close(Conn),
+            ?LOG_EVENT(CallbackInfo, ?EVENT_CONNECT_CLOSE),
             NewState = State#pool_st{busy = dict:erase(Pid, Busy),
                                      num_connected = Num - 1},
             maybe_spawn_connect(NewState);
@@ -435,14 +436,14 @@ schedule_expiration(State) ->
     State.
 
 
-expire_connections(#pool_st{free = Conns, pool = Pool, num_connected = Num} = State) ->
+expire_connections(#pool_st{free = Conns, pool = Pool, num_connected = Num, callback_info = CallbackInfo} = State) ->
     Now = os:timestamp(),
     try conn_time_to_live(Pool) of
         TTL ->
             case lists:foldl(fun filter_expired/2, {Now, TTL, [], []}, Conns) of
                 {_, _, [], _} -> State;
                 {_, _, ExpConns, ActConns} ->
-                    spawn_link(fun() -> close_connections(ExpConns) end),
+                    spawn_link(fun() -> close_connections(CallbackInfo, ExpConns) end),
                     maybe_spawn_connect(
                       State#pool_st{free = ActConns,
                                     num_connected = Num - length(ExpConns)})
@@ -473,11 +474,12 @@ filter_expired(#conn{updated = Updated} = Conn, {Now, TTL, ExpConns, ActConns}) 
 safe_send(PoolName, Cmd) ->
     catch PoolName ! Cmd.
 
-close_connections([]) -> ok;
+close_connections(_CallbackInfo, []) -> ok;
 
-close_connections([Conn | Conns]) ->
+close_connections(CallbackInfo, [Conn | Conns]) ->
     catch close(Conn),
-    close_connections(Conns).
+    ?LOG_EVENT(CallbackInfo, ?EVENT_CONNECT_CLOSE),
+    close_connections(CallbackInfo, Conns).
 
 is_config_valid() ->
     Initial = mero_conf:initial_connections_per_pool(),

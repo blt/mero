@@ -54,6 +54,7 @@
 
 %% Events used in callback
 -define(EVENT_CONNECT_OK, {[socket, connect, ok],  []}).
+-define(EVENT_CONNECT_CLOSE, {[socket, connect, close],  []}).
 -define(EVENT_CONNECT_ERROR(Reason), {[socket, connect, error],  [{reason, Reason}]}).
 -define(EVENT_CONTROLLING_PROCESS_ERROR(Reason), {[socket, controlling_process, error], [{reason, Reason}]}).
 -define(EVENT_RCV_ERROR(Reason), {[socket, rcv, error], [{reason, Reason}]}).
