@@ -47,16 +47,25 @@
     ]).
 
 all() -> [
-             start_stop,
-             start_stop_many,
-             checkout_checkin,
-             checkout_checkin_limits,
-             checkout_checkin_closed,
-             conn_failed_checkout_error,
-             checkout_and_die,
-             expire_connections,
-             checkout_timeout
-].
+          {group, basics}
+         ].
+
+groups() ->
+    [
+     {basics, [],
+      [
+       start_stop,
+       start_stop_many,
+       checkout_checkin,
+       checkout_checkin_limits,
+       checkout_checkin_closed,
+       conn_failed_checkout_error,
+       checkout_and_die,
+       expire_connections,
+       checkout_timeout
+      ]
+     }
+    ].
 
 
 suite() -> [{timetrap, {seconds, 5}}].
@@ -79,9 +88,9 @@ init_per_testcase(_, Conf) ->
 end_per_testcase(_, _Conf) ->
   application:stop(mero).
 
-%%%=============================================================================
-%%% Tests
-%%%=============================================================================
+%%%===================================================================
+%%% 'basics' Tests
+%%%===================================================================
 
 %% Just tests if the application can be started and when it does that
 %% the mero_cluster module is generated correctly.

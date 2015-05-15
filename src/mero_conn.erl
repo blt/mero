@@ -74,7 +74,6 @@ add(Name, Key, Value, ExpTime, Timeout) ->
     PoolName = mero_cluster:server(Name, Key),
     pool_execute(PoolName, add, [Key, Value, ExpTime, TimeLimit], TimeLimit).
 
-
 flush_all(Name, Timeout) ->
     TimeLimit = mero_conf:add_now(Timeout),
     [{Name, pool_execute(PoolName, flush_all, [TimeLimit], TimeLimit)} || PoolName <-

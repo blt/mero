@@ -325,6 +325,5 @@ add(Cluster, ClusterAlt, Keys) ->
 %%% Internal functions
 %%%=============================================================================
 
-
 key() ->
     base64:encode(crypto:strong_rand_bytes(20)).
