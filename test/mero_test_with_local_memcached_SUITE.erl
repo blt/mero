@@ -103,7 +103,6 @@ end_per_suite(_Conf) ->
 init_per_testcase(_Module, Conf) ->
     ct:log("state ~p", [mero:state()]),
     Keys = [key() || _  <- lists:seq(1, 4)],
-    dbg(),
     [{keys, Keys} | Conf].
 
 
@@ -326,19 +325,5 @@ add(Cluster, ClusterAlt, Keys) ->
 %%% Internal functions
 %%%=============================================================================
 
-
 key() ->
     base64:encode(crypto:strong_rand_bytes(20)).
-
-%% Just for test purposes
-dbg() ->
-    dbg:tracer(),
-    dbg:p(all, c),
-    dbg:tpl(?MODULE,x),
-    dbg:tp(mero_cluster,x),
-    %dbg:tpl(mero_cluster_txt_localhost_1_0,x),
-    dbg:tp(mero,x),
-    dbg:tpl(mero_dummy_server, x),
-    dbg:tpl(mero_wrk_tcp_txt, x),
-    dbg:tpl(mero_conn, x),
-    ok.

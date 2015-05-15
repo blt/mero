@@ -74,7 +74,6 @@ add(Name, Key, Value, ExpTime, Timeout) ->
     PoolName = mero_cluster:server(Name, Key),
     pool_execute(PoolName, add, [Key, Value, ExpTime, TimeLimit], TimeLimit).
 
-
 flush_all(Name, Timeout) ->
     TimeLimit = mero_conf:add_now(Timeout),
     [{Name, pool_execute(PoolName, flush_all, [TimeLimit], TimeLimit)} || PoolName <-
@@ -117,7 +116,7 @@ pool_execute(PoolName, Op, Args, TimeLimit) when is_tuple(TimeLimit) ->
             case mero_pool:transaction(Conn, Op, Args) of
                 {error, Reason} ->
                     mero_pool:close(Conn),
-                  mero_pool:checkin_closed(Conn),
+                    mero_pool:checkin_closed(Conn),
                     {error, Reason};
                 {NConn, Return} ->
                     mero_pool:checkin(NConn),
@@ -128,4 +127,3 @@ pool_execute(PoolName, Op, Args, TimeLimit) when is_tuple(TimeLimit) ->
         {error, Reason} ->
             {error, Reason}
     end.
-

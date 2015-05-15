@@ -61,7 +61,7 @@
                   free :: list(term()),
 
                   %% Busy connections (pid -> #conn)
-                  busy :: dict(),
+                  busy :: dict:dict(),
 
                   %% Number of connections established (busy + free)
                   num_connected :: non_neg_integer(),
@@ -394,9 +394,8 @@ spawn_connections(Pool, WrkModule, Host, Port, CallbackInfo, 1) ->
     spawn_connect(Pool, WrkModule, Host, Port, CallbackInfo);
 spawn_connections(Pool, WrkModule, Host, Port, CallbackInfo, Number) when (Number > 0) ->
     SleepTime = mero_conf:max_connection_delay_time(),
-    [ begin
-          spawn_connect(Pool, WrkModule, Host, Port, CallbackInfo, SleepTime)
-      end || _Number <- lists:seq(1, Number)].
+    [ spawn_connect(Pool, WrkModule, Host, Port, CallbackInfo, SleepTime)
+      || _Number <- lists:seq(1, Number) ].
 
 
 try_connect(Pool, WrkModule, Host, Port, CallbackInfo) ->
