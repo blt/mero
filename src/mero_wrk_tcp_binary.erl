@@ -46,9 +46,7 @@
                          {packet, raw},
                          {active, false},
                          {reuseaddr, true},
-                         {nodelay, true},
-                         {linger, {true, 1}},
-                         {keepalive, false}
+                         {nodelay, true}
                         ]).
 
 %%%=============================================================================
